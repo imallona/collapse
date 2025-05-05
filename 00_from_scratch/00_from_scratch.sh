@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # sherborne-proof main ob install
+# execute interactively, not as a script
 #
 # tmux new -s collapse
 
@@ -11,7 +12,7 @@ cd $_
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 ## we remove any trace of old micromamba; delete if you prefer
-mv ~/micromamba{,.DELETEME}
+mv -f ~/micromamba{,.DELETEME}  2>/dev/null
 
 ## envs will go here, create manually
 mkdir -p ~/micromamba
@@ -22,8 +23,12 @@ curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/mi
 # we control which micromamba are we talking about- the new one
 export PATH=~/collapse/micromamba/bin:$PATH
 
+eval "$(micromamba shell hook --shell bash)"
+
 # check versions
 micromamba --version
+
+## has to fail: we haven't installed any conda; ping `imallona` if it doesn't fail
 conda info --json
 
 # ob main
@@ -35,8 +40,7 @@ micromamba activate
 micromamba create -n omnibenchmark
 micromamba activate omnibenchmark
 
-# we create something sane for an env
-
+# we create something sane for an env - pinning python 3.12 etc
 cat << EOF > sane_env.yml
 channels:
   - conda-forge
@@ -52,11 +56,13 @@ dependencies:
      - "."
 EOF
 
-
+## we install it
 micromamba install -f sane_env.yml
 
-ob --version
+## conda found - this command has to succeed
 conda info --json
+ob --version
+
 
 cd ~/collapse
 
@@ -127,65 +133,6 @@ stages:
           - values: ["--dataset_generator", "fcps", "--dataset_name", "atom"] #	2	1
           - values: ["--dataset_generator", "fcps", "--dataset_name", "chainlink"] #	2	1
           - values: ["--dataset_generator", "fcps", "--dataset_name", "engytime"] #	2	2
-          - values: ["--dataset_generator", "fcps", "--dataset_name", "hepta"] #	7	1
-          - values: ["--dataset_generator", "fcps", "--dataset_name", "lsun"] #	3	1
-          - values: ["--dataset_generator", "fcps", "--dataset_name", "target"] #	2, 6	2
-          - values: ["--dataset_generator", "fcps", "--dataset_name", "tetra"] #	4	1
-          - values: ["--dataset_generator", "fcps", "--dataset_name", "twodiamonds"] #	2	1
-          - values: ["--dataset_generator", "fcps", "--dataset_name", "wingnut"] #	2	1
-          - values: ["--dataset_generator", "graves", "--dataset_name", "dense"] #	2	1
-          - values: ["--dataset_generator", "graves", "--dataset_name", "fuzzyx"] #	2, 4, 5	6
-          - values: ["--dataset_generator", "graves", "--dataset_name", "line"] #	2	1
-          - values: ["--dataset_generator", "graves", "--dataset_name", "parabolic"] #	2, 4	2
-          - values: ["--dataset_generator", "graves", "--dataset_name", "ring"] #	2	1
-          # - values: ["--dataset_generator", "graves", "--dataset_name", "ring_noisy"] #	2	1
-          # - values: ["--dataset_generator", "graves", "--dataset_name", "ring_outliers"] #	2, 5	2
-          # - values: ["--dataset_generator", "graves", "--dataset_name", "zigzag"] #	3, 5	2
-          # - values: ["--dataset_generator", "graves", "--dataset_name", "zigzag_noisy"] #	3, 5	2
-          # - values: ["--dataset_generator", "graves", "--dataset_name", "zigzag_outliers"] #	3, 5	2
-          # - values: ["--dataset_generator", "other", "--dataset_name", "chameleon_t4_8k"] #	6	1
-          # - values: ["--dataset_generator", "other", "--dataset_name", "chameleon_t5_8k"] #	6	1
-          # - values: ["--dataset_generator", "other", "--dataset_name", "hdbscan"] #	6	1
-          # - values: ["--dataset_generator", "other", "--dataset_name", "iris"] #	3	1
-          # - values: ["--dataset_generator", "other", "--dataset_name", "iris5"] #	3	1
-          # - values: ["--dataset_generator", "other", "--dataset_name", "square"] #	2	1
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "aggregation"] #	7	1
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "compound"] #	4, 5, 6	5
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "flame"] #	2	2
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "jain"] #	2	1
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "pathbased"] #	3, 4	2
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "r15"] #	8, 9, 15	3
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "spiral"] #	3	1
-          # - values: ["--dataset_generator", "sipu", "--dataset_name", "unbalance"] #	8	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "ecoli"] #	8	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "ionosphere"] #	2	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "sonar"] #	2	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "statlog"] #	7	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "wdbc"] #	2	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "wine"] #	3	1
-          # - values: ["--dataset_generator", "uci", "--dataset_name", "yeast"] #	10	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "circles"] #	4	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "cross"] #	4	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "graph"] #	10	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "isolation"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "labirynth"] #	6	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "mk1"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "mk2"] #	2	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "mk3"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "mk4"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "olympic"] #	5	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "smile"] #	4, 6	2
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "stripes"] #	2	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "trajectories"] #	4	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "trapped_lovers"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "twosplashes"] #	2	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "windows"] #	5	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "x1"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "x2"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "x3"] #	4	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "z1"] #	3	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "z2"] #	5	1
-          # - values: ["--dataset_generator", "wut", "--dataset_name", "z3"] #	4	1
     outputs:
       - id: data.matrix
         path: "{input}/{stage}/{module}/{params}/{dataset}.data.gz"
@@ -254,12 +201,12 @@ stages:
           - values: ["--method", "FCPS_MinEnergy"]
           - values: ["--method", "FCPS_HDBSCAN_2"]
           - values: ["--method", "FCPS_HDBSCAN_4"]
-          - values: ["--method", "FCPS_HDBSCAN_8"]
+          # - values: ["--method", "FCPS_HDBSCAN_8"]
           # - values: ["--method", "FCPS_Diana"]
           # - values: ["--method", "FCPS_Fanny"]
           - values: ["--method", "FCPS_Hardcl"]
           - values: ["--method", "FCPS_Softcl"]
-          - values: ["--method", "FCPS_Clara"]
+          # - values: ["--method", "FCPS_Clara"]
           - values: ["--method", "FCPS_PAM"]
     inputs:
       - entries:
