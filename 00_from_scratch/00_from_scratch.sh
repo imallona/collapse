@@ -299,5 +299,6 @@ stages:
 
 EOF
 
-ob run benchmark -b nometrics_conda.yml --local --threads 6
+## caution the race condition with multiple clonings wasn't fixed here so use low amount of cores
+ob run benchmark -b nometrics_conda.yml --local --threads 2
 
