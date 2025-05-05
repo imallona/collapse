@@ -1,10 +1,13 @@
 #!/bin/bash
 #
 # sherborne-proof main ob install
-# execute interactively, not as a script
+# execute interactively, not as a script, because some human-driven debugging is happening
+# caution it might fail for `ob run` commands with lots of threads due to a git cloning race condition (ask Daniel)
 #
-# tmux new -s collapse
+# better run on a tmux, e.g. tmux new -s collapse
 
+
+## we'll work on ~/collapse and start installing micromamba
 mkdir -p ~/collapse/micromamba
 cd $_
 
@@ -14,24 +17,25 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/ga
 ## we remove any trace of old micromamba; delete if you prefer
 mv -f ~/micromamba{,.DELETEME}  2>/dev/null
 
-## envs will go here, create manually
+## envs will go here, create the folder manually
 mkdir -p ~/micromamba
 
-# linux Intel (x86_64) micromamba
+# install a linux Intel (x86_64) micromamba
 curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
 
 # we control which micromamba are we talking about- the new one
 export PATH=~/collapse/micromamba/bin:$PATH
 
+# and modify the shell
 eval "$(micromamba shell hook --shell bash)"
 
-# check versions
+# this should work
 micromamba --version
 
 ## has to fail: we haven't installed any conda; ping `imallona` if it doesn't fail
 conda info --json
 
-# ob main
+# do not use ob dev; clone ob main instead
 git clone git@github.com:omnibenchmark/omnibenchmark.git -b main
 
 cd omnibenchmark
@@ -56,13 +60,14 @@ dependencies:
      - "."
 EOF
 
-## we install it
+## we install the sane env
 micromamba install -f sane_env.yml
 
-## conda found - this command has to succeed
+## conda found now has to succeed, we have installed it: ping `imallona` if it doesn't succeed
 conda info --json
 ob --version
 
+## let's run the clustering
 
 cd ~/collapse
 
@@ -133,6 +138,8 @@ stages:
           - values: ["--dataset_generator", "fcps", "--dataset_name", "atom"] #	2	1
           - values: ["--dataset_generator", "fcps", "--dataset_name", "chainlink"] #	2	1
           - values: ["--dataset_generator", "fcps", "--dataset_name", "engytime"] #	2	2
+          - values: ["--dataset_generator", "sipu", "--dataset_name", "unbalance"] #	8	1
+          - values: ["--dataset_generator", "uci", "--dataset_name", "ecoli"] #	8	1
     outputs:
       - id: data.matrix
         path: "{input}/{stage}/{module}/{params}/{dataset}.data.gz"
@@ -247,5 +254,6 @@ stages:
 EOF
 
 ## caution the race condition with multiple clonings wasn't fixed here so use low amount of cores
+## that is, https://github.com/omnibenchmark/omnibenchmark/pull/53
 ob run benchmark -b nometrics_conda.yml --local --threads 2
 
