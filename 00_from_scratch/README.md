@@ -4,4 +4,6 @@ It currently has very conservative hotfixes, including [a recipe to install ob m
 
 These patches are also partly being tested (automation) at https://github.com/omnibenchmark/clustering_example/tree/imallona-patch-1
 
-Main comments about the debugging status can be checked at https://github.com/omnibenchmark/omnibenchmark/pull/110
+Main comments about the debugging from Izaskun's perspective can be checked at imallona's [dev hotfix](https://github.com/omnibenchmark/omnibenchmark/pull/110).
+
+We're preparing [a postmortem](https://docs.google.com/document/d/1ZIYzAgNKAhu3xCnmuiJA45iOx36ChP44Hk9ISvrWsXc/edit?usp=sharing) but this repo is a quick fix/debug process on its own and the whole team will release a more robust hotfix than [dev hotfix](https://github.com/omnibenchmark/omnibenchmark/pull/110). Still, [dev hotfix](https://github.com/omnibenchmark/omnibenchmark/pull/110) works already.
