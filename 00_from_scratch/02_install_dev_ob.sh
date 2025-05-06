@@ -3,8 +3,6 @@
 # sherborne-proof imallona's DEV hotfixed branch ob install
 #
 # execute interactively, not as a script, because some human-driven debugging is happening
-# caution it will FAIL for `ob run` commands with lots of threads due to a git cloning race condition
-#   described https://github.com/omnibenchmark/omnibenchmark/pull/53
 # better run on a tmux, e.g. tmux new -s dev_ob
 
 
