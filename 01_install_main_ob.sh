@@ -1,18 +1,11 @@
 #!/bin/bash
-#
-#####################################################################################
-#                                                                                   #
-#                    THIS IS KEPT AS-IS FOR HISTORICAL REASONS,                     #
-#   PLEASE SWITCH TO `01_install_dev_ob.sh` or `02_install_main_ob.sh` instead      #
-#                                                                                   #
-#####################################################################################
-#
-# sherborne-proof main ob install
-# execute interactively, not as a script, because some human-driven debugging is happening
-# caution it might fail for `ob run` commands with lots of threads due to a git cloning race condition (ask Daniel)
-#
-# better run on a tmux, e.g. tmux new -s collapse
 
+# sherborne-proof MAIN branch ob install
+#
+# execute interactively, not as a script, because some human-driven debugging is happening
+# caution it will FAIL for `ob run` commands with lots of threads due to a git cloning race condition
+#   described https://github.com/omnibenchmark/omnibenchmark/pull/53
+# better run on a tmux, e.g. tmux new -s main_ob
 
 
 ## we'll work on ~/collapse and start installing micromamba
@@ -43,7 +36,7 @@ micromamba --version
 ## has to fail: we haven't installed any conda; ping `imallona` if it doesn't fail
 conda info --json
 
-# do not use ob dev; clone ob main instead
+# do not use ob dev; clone ob main instead. Mind `dev` is the default branch currently.
 git clone git@github.com:omnibenchmark/omnibenchmark.git -b main
 
 cd omnibenchmark
@@ -53,6 +46,7 @@ micromamba create -n omnibenchmark
 micromamba activate omnibenchmark
 
 # we create something sane for an env - pinning python 3.12 etc
+# the file is generated using a heredocs trick (the EOF / EOF content is written to sane_env.yml)
 cat << EOF > sane_env.yml
 channels:
   - conda-forge
@@ -69,9 +63,9 @@ dependencies:
 EOF
 
 ## we install the sane env
-micromamba install -f sane_env.yml
+micromamba install --yes -f sane_env.yml
 
-## conda found now has to succeed, we have installed it: ping `imallona` if it doesn't succeed
+## conda found now has to succeed (printing a json), we have installed it: ping `imallona` if it doesn't succeed
 conda info --json
 ob --version
 
@@ -261,7 +255,8 @@ stages:
 
 EOF
 
-## caution the race condition with multiple clonings wasn't fixed here so use low amount of cores
+## caution the race condition with multiple clonings wasn't fixed here so use low amount of cores. One even.
 ## that is, https://github.com/omnibenchmark/omnibenchmark/pull/53
-ob run benchmark -b nometrics_conda.yml --local --threads 2
+## also, 'cores' is named 'threads' here in omnibenchmark main
+ob run benchmark -b nometrics_conda.yml --local --threads 1
 
