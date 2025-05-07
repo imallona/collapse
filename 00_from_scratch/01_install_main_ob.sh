@@ -3,8 +3,6 @@
 # sherborne-proof MAIN branch ob install
 #
 # execute interactively, not as a script, because some human-driven debugging is happening
-# caution it will FAIL for `ob run` commands with lots of threads due to a git cloning race condition
-#   described https://github.com/omnibenchmark/omnibenchmark/pull/53
 # better run on a tmux, e.g. tmux new -s main_ob
 
 
@@ -45,25 +43,8 @@ micromamba activate
 micromamba create -n omnibenchmark
 micromamba activate omnibenchmark
 
-# we create something sane for an env - pinning python 3.12 etc
-# the file is generated using a heredocs trick (the EOF / EOF content is written to sane_env.yml)
-cat << EOF > sane_env.yml
-channels:
-  - conda-forge
-  - bioconda
-  - nodefaults
-dependencies:
-  - conda-forge::python == 3.12
-  - conda-forge::mamba == 1.5.8
-  - conda-forge::lmod == 8.7.25
-  - conda-forge::pip >= 24.1.2
-  - conda-forge::datrie >= 0.8.2 # dep for snakemake, workaround for https://github.com/astral-sh/uv/issues/7525
-  - pip:
-     - "."
-EOF
-
 ## we install the sane env
-micromamba install --yes -f sane_env.yml
+micromamba install --yes -f test-environment.yml
 
 ## conda found now has to succeed (printing a json), we have installed it: ping `imallona` if it doesn't succeed
 conda info --json
@@ -255,8 +236,5 @@ stages:
 
 EOF
 
-## caution the race condition with multiple clonings wasn't fixed here so use low amount of cores. One even.
-## that is, https://github.com/omnibenchmark/omnibenchmark/pull/53
 ## also, 'cores' is named 'threads' here in omnibenchmark main
-ob run benchmark -b nometrics_conda.yml --local --threads 1
-
+ob run benchmark -b nometrics_conda.yml --local --threads 30
